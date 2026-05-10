@@ -1,4 +1,4 @@
-// app/login/page.tsx
+// app/register/page.tsx
 
 "use client";
 
@@ -19,23 +19,40 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-const loginSchema = z.object({
-  email: z.string().email("Valid email is required"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
+const registerSchema = z
+  .object({
+    name: z.string().min(3, "Name is required"),
 
-type LoginValues = z.infer<typeof loginSchema>;
+    email: z.string().email("Valid email is required"),
 
-export default function LoginPage() {
-  const form = useForm<LoginValues>({
-    resolver: zodResolver(loginSchema),
+    password: z
+      .string()
+      .min(6, "Password must be at least 6 characters"),
+
+    confirmPassword: z
+      .string()
+      .min(6, "Confirm your password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+type RegisterValues = z.infer<typeof registerSchema>;
+
+export default function RegisterPage() {
+  const form = useForm<RegisterValues>({
+    resolver: zodResolver(registerSchema),
+
     defaultValues: {
+      name: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
-  const onSubmit = (values: LoginValues) => {
+  const onSubmit = (values: RegisterValues) => {
     console.log(values);
   };
 
@@ -46,10 +63,10 @@ export default function LoginPage() {
         <Card className="w-full max-w-md shadow-none border-none">
           <CardContent className="p-0">
             <div className="mb-8">
-              <h1 className="text-3xl font-bold">Welcome Back</h1>
+              <h1 className="text-3xl font-bold">Create Account</h1>
 
               <p className="text-muted-foreground mt-2">
-                Login to continue
+                Register to get started
               </p>
             </div>
 
@@ -58,6 +75,25 @@ export default function LoginPage() {
                 onSubmit={form.handleSubmit(onSubmit)}
                 className="space-y-5"
               >
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+
+                      <FormControl>
+                        <Input
+                          placeholder="Enter full name"
+                          {...field}
+                        />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="email"
@@ -87,7 +123,27 @@ export default function LoginPage() {
                       <FormControl>
                         <Input
                           type="password"
-                          placeholder="Enter your password"
+                          placeholder="Create password"
+                          {...field}
+                        />
+                      </FormControl>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirm Password</FormLabel>
+
+                      <FormControl>
+                        <Input
+                          type="password"
+                          placeholder="Confirm password"
                           {...field}
                         />
                       </FormControl>
@@ -98,18 +154,18 @@ export default function LoginPage() {
                 />
 
                 <Button type="submit" className="w-full">
-                  Login
+                  Register
                 </Button>
               </form>
             </Form>
 
             <p className="text-sm text-muted-foreground text-center mt-6">
-              Don&apos;t have an account?{" "}
+              Already have an account?{" "}
               <Link
-                href="/register"
+                href="/login"
                 className="font-medium text-primary"
               >
-                Register
+                Login
               </Link>
             </p>
           </CardContent>
@@ -126,35 +182,14 @@ export default function LoginPage() {
         >
           <circle cx="250" cy="250" r="180" fill="white" opacity="0.1" />
 
-          <rect
-            x="140"
-            y="120"
-            width="220"
-            height="260"
-            rx="20"
-            fill="white"
+          <path
+            d="M170 320C170 276 205 240 250 240C295 240 330 276 330 320"
+            stroke="white"
+            strokeWidth="20"
+            strokeLinecap="round"
           />
 
-          <circle cx="250" cy="200" r="40" fill="black" />
-
-          <rect
-            x="180"
-            y="270"
-            width="140"
-            height="18"
-            rx="9"
-            fill="black"
-          />
-
-          <rect
-            x="160"
-            y="310"
-            width="180"
-            height="18"
-            rx="9"
-            fill="black"
-            opacity="0.7"
-          />
+          <circle cx="250" cy="190" r="50" fill="white" />
         </svg>
       </div>
     </div>
