@@ -81,35 +81,8 @@ export function EventsSidebar({
               </Button>
             </Link>
           ))}
-        {/* <Link href="/dashboard">
-          <Button 
-            variant={isActive("/dashboard") ? "default" : "ghost"} 
-            className="w-full justify-start"
-          >
-            <Home className="mr-2 h-4 w-4" />
-            Dashboard
-          </Button>
-        </Link> */}
-        
-        {/* <Link href="/events">
-          <Button 
-            variant={isActive("/events") ? "default" : "ghost"} 
-            className="w-full justify-start"
-          >
-            <Calendar className="mr-2 h-4 w-4" />
-            Events
-          </Button>
-        </Link> */}
-        
-        {/* <Link href="/dashboard/user">
-          <Button 
-            variant={isActive("/dashboard/user") ? "default" : "ghost"} 
-            className="w-full justify-start"
-          >
-            <Ticket className="mr-2 h-4 w-4" />
-            My Bookings
-          </Button>
-        </Link> */}
+      
+    
       </div>
 
       {/* Scrollable Filters Section */}
