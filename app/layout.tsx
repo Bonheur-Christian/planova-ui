@@ -16,8 +16,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "eGrasp",
-  description: "",
+  title: "Planova",
+  description: "You think, we plan it",
 };
 
 export default function RootLayout({
