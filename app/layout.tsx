@@ -3,6 +3,8 @@ import { Poppins, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import Providers from "@/components/custom/LoaderProvider";
+import StoreProvider from "@/redux/StoreProvider";
+import { Toaster } from "react-hot-toast";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -28,7 +30,12 @@ export default function RootLayout({
   return (
     <html lang="en" className={cn("font-mono", jetbrainsMono.variable)}>
       <body className={`${poppins.variable} antialiased`}>
-        <Providers>{children}</Providers>
+        <StoreProvider>
+          <Providers>
+            <Toaster position="top-right" />
+            {children}
+          </Providers>
+        </StoreProvider>
       </body>
     </html>
   );

@@ -42,8 +42,8 @@ export default function CreateEventPage() {
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    mode:"onSubmit",  
-    reValidateMode:"onSubmit",  
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
     defaultValues: {
       title: "",
       description: "",
@@ -152,7 +152,7 @@ export default function CreateEventPage() {
                       )}
                     </Button>
                   </PopoverTrigger>
-
+                      
                   <PopoverContent className="w-auto p-0">
                     <Calendar
                       mode="single"
@@ -194,4 +194,3 @@ export default function CreateEventPage() {
     </>
   );
 }
-

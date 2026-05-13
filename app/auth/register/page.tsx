@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
+import { useRegisterMutation } from "@/redux/features/auth/auth.api";
+import toast from "react-hot-toast";
 
 const registerSchema = z.object({
   name: z.string().min(3, "Name is required"),
@@ -31,6 +33,8 @@ const registerSchema = z.object({
 type RegisterValues = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
+  const [register, { isLoading }] = useRegisterMutation();
+
   const form = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
 
@@ -41,8 +45,21 @@ export default function RegisterPage() {
     },
   });
 
-  const onSubmit = (values: RegisterValues) => {
-    console.log(values);
+  const onSubmit = async (values: RegisterValues) => {
+    try {
+      const response = await register(values).unwrap();
+      toast.success("Account created successfully ");
+      console.log("Registration successful:", response);
+    } catch (err: any) {
+      console.error("Registration failed:", err);
+
+      const message =
+        err?.data?.message ||
+        err?.error ||
+        "Something went wrong. Please try again.";
+
+      toast.error(message);
+    }
   };
 
   return (
@@ -112,8 +129,12 @@ export default function RegisterPage() {
               />
 
               <div className="flex items-center justify-center">
-                <Button type="submit" className="w-1/2 py-6">
-                  Register
+                <Button
+                  type="submit"
+                  className="w-1/2 py-6"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Creating account..." : "Register"}
                 </Button>
               </div>
             </form>
