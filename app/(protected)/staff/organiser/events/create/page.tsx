@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 
+// Simplified schema matching your Event model
 const formSchema = z.object({
   title: z.string().min(3, "Title is required"),
   description: z.string().min(10, "Description is too short"),
@@ -41,6 +42,8 @@ export default function CreateEventPage() {
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
+    mode:"onSubmit",  
+    reValidateMode:"onSubmit",  
     defaultValues: {
       title: "",
       description: "",
@@ -191,3 +194,4 @@ export default function CreateEventPage() {
     </>
   );
 }
+
