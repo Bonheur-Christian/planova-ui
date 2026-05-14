@@ -1,11 +1,10 @@
-// app/login/page.tsx
-
 "use client";
 
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,6 +18,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
+import { useLoginMutation } from "@/redux/features/auth/auth.api";
+import { useRouter } from "next13-progressbar";
+import toast from "react-hot-toast";
+import { Loader2, Eye, EyeOff } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email("Valid email is required"),
@@ -28,16 +31,27 @@ const loginSchema = z.object({
 type LoginValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
+  const [login, { isLoading }] = useLoginMutation();
+  const router = useRouter();
+
+  const [showPassword, setShowPassword] = useState(false);
+
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",  
+      email: "",
       password: "",
     },
   });
 
-  const onSubmit = (values: LoginValues) => {
-    console.log(values);
+  const onSubmit = async (values: LoginValues) => {
+    try {
+      await login(values).unwrap();
+      toast.success("Login successful", { duration: 3000 });
+      router.push("/events");
+    } catch (err: any) {
+      toast.error("Login failed");
+    }
   };
 
   return (
@@ -46,7 +60,6 @@ export default function LoginPage() {
         <CardContent className="p-0">
           <div className="mb-8">
             <h1 className="text-3xl font-bold">Welcome Back</h1>
-
             <p className="text-muted-foreground mt-2">Login to continue</p>
           </div>
 
@@ -58,11 +71,9 @@ export default function LoginPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Email</FormLabel>
-
                     <FormControl>
                       <Input placeholder="Enter your email" {...field} />
                     </FormControl>
-
                     <FormMessage />
                   </FormItem>
                 )}
@@ -76,20 +87,39 @@ export default function LoginPage() {
                     <FormLabel>Password</FormLabel>
 
                     <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Enter your password"
-                        {...field}
-                      />
+                      <div className="relative">
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Enter your password"
+                          {...field}
+                        />
+
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((prev) => !prev)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                        >
+                          {showPassword ? (
+                            <EyeOff size={18} />
+                          ) : (
+                            <Eye size={18} />
+                          )}
+                        </button>
+                      </div>
                     </FormControl>
 
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
               <div className="flex items-center justify-center">
-                <Button type="submit" className="w-1/2 py-6">
-                  Login
+                <Button
+                  type="submit"
+                  className="w-1/2 py-6"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Logging in" : "Login"}
                 </Button>
               </div>
             </form>
@@ -103,7 +133,7 @@ export default function LoginPage() {
           </p>
         </CardContent>
       </Card>
-      {/* SVG SIDE */}
+
       <Image
         src="/login.svg"
         alt="Login Illustration"
