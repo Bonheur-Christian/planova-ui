@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { useRegisterMutation } from "@/redux/features/auth/auth.api";
 import toast from "react-hot-toast";
+import { useRouter } from "next13-progressbar";
 
 const registerSchema = z.object({
   name: z.string().min(3, "Name is required"),
@@ -33,6 +34,7 @@ const registerSchema = z.object({
 type RegisterValues = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [register, { isLoading }] = useRegisterMutation();
 
   const form = useForm<RegisterValues>({
@@ -48,17 +50,12 @@ export default function RegisterPage() {
   const onSubmit = async (values: RegisterValues) => {
     try {
       const response = await register(values).unwrap();
-      toast.success("Account created successfully ");
-      console.log("Registration successful:", response);
+      toast.success("Account created successfully ", {
+        duration: 3000,
+      });
+      router.push("/auth/login");
     } catch (err: any) {
-      console.error("Registration failed:", err);
-
-      const message =
-        err?.data?.message ||
-        err?.error ||
-        "Something went wrong. Please try again.";
-
-      toast.error(message);
+      toast.error("Registration failed:", err);
     }
   };
 
