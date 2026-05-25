@@ -24,8 +24,8 @@ import toast from "react-hot-toast";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 
 const loginSchema = z.object({
-  email: z.string().email("Valid email is required"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().trim().email("Valid email is required"),
+  password: z.string().trim().min(6, "Password must be at least 6 characters"),
 });
 
 type LoginValues = z.infer<typeof loginSchema>;

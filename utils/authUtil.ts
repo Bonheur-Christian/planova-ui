@@ -8,6 +8,7 @@ export const saveAccessToken = (token: string) => {
 
 export const getAccessToken = () => {
   if (typeof window === "undefined") return null;
+  
   return localStorage.getItem("token");
 };
 
@@ -17,7 +18,7 @@ export const saveUser = (user: any) => {
   localStorage.setItem("user", JSON.stringify(user));
 
   document.cookie = `user=${encodeURIComponent(
-    JSON.stringify(user)
+    JSON.stringify(user),
   )}; path=/; SameSite=Lax`;
 };
 

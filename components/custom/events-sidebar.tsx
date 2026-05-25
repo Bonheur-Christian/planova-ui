@@ -1,23 +1,32 @@
 // components/custom/app-sidebar.tsx
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { 
-  Calendar, 
-  Ticket, 
-  MapPin, 
-  Search, 
+import {
+  Calendar,
+  Ticket,
+  MapPin,
+  Search,
   X,
-  Home,
   User,
   Settings,
-  LogOut
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useDispatch } from "react-redux";
+import { useRouter } from "next13-progressbar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface AppSidebarProps {
   // For events page
@@ -27,16 +36,16 @@ interface AppSidebarProps {
   onLocationChange?: (location: string) => void;
   locations?: string[];
   onClearFilters?: () => void;
-  
+
   // For bookings page
   statusFilter?: string;
   onStatusChange?: (status: string) => void;
-  
+
   // Common props
   variant?: "events" | "bookings";
 }
 
-export function EventsSidebar({ 
+export function EventsSidebar({
   variant = "events",
   searchQuery = "",
   onSearchChange = () => {},
@@ -47,42 +56,97 @@ export function EventsSidebar({
   statusFilter = "all",
   onStatusChange = () => {},
 }: AppSidebarProps) {
+  const dispatch = useDispatch();
+  const router = useRouter();
   const pathname = usePathname();
-  const hasActiveFilters = searchQuery || selectedLocation || statusFilter !== "all";
+  const hasActiveFilters =
+    searchQuery || selectedLocation || statusFilter !== "all";
 
   const isActive = (path: string) => pathname === path;
 
   const navLinks = [
-    // { href: "/dashboard", label: "Dashboard", icon: Home },
     { href: "/events", label: "Events", icon: Calendar },
     { href: "/events/me", label: "My Bookings", icon: Ticket },
-  ]
+  ];
+
+  //Logout logic
+  const handleLogout = () => {};
 
   return (
     <aside className="w-full md:w-80 border-r bg-card flex flex-col h-screen sticky top-0">
-      {/* Logo Section */}
-      <div className="p-4 border-b">
-        <h1 className="text-xl font-bold">Planova</h1>
-        <p className="text-xs text-muted-foreground">
-          {variant === "events" ? "Discover amazing events" : "Manage your bookings"}
-        </p>
+      <div className="p-4 border-b flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold">Planova</h1>
+
+          <p className="text-xs text-muted-foreground">
+            {variant === "events"
+              ? "Discover amazing events"
+              : "Manage your bookings"}
+          </p>
+        </div>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="outline-none cursor-pointer">
+              <Avatar className="h-10 w-10">
+                <AvatarImage src="#" />
+
+                <AvatarFallback>U </AvatarFallback>
+              </Avatar>
+            </button>
+          </DropdownMenuTrigger>
+
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>
+              <div className="flex flex-col">
+                <span className="font-medium">user name</span>
+
+                <span className="text-xs text-muted-foreground">Email</span>
+              </div>
+            </DropdownMenuLabel>
+
+            <DropdownMenuSeparator />
+
+            <Link href="/dashboard/profile">
+              <DropdownMenuItem className="cursor-pointer">
+                <User className="mr-2 h-4 w-4" />
+                Profile
+              </DropdownMenuItem>
+            </Link>
+
+            <Link href="/dashboard/settings">
+              <DropdownMenuItem className="cursor-pointer">
+                <Settings className="mr-2 h-4 w-4" />
+                Settings
+              </DropdownMenuItem>
+            </Link>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              onClick={handleLogout}
+              className="cursor-pointer text-red-600 focus:text-red-600"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Navigation Links */}
       <div className="p-4 border-b flex flex-col space-y-2 w-full">
         {navLinks.map(({ href, label, icon: Icon }) => (
-            <Link key={href} href={href}>
-              <Button 
-                variant={isActive(href) ? "default" : "ghost"}
-                className="w-full justify-start py-5 cursor-pointer"
-              >
-                <Icon className="mr-2 h-4 w-4" />
-                {label}
-              </Button>
-            </Link>
-          ))}
-      
-    
+          <Link key={href} href={href}>
+            <Button
+              variant={isActive(href) ? "default" : "ghost"}
+              className="w-full justify-start py-5 cursor-pointer"
+            >
+              <Icon className="mr-2 h-4 w-4" />
+              {label}
+            </Button>
+          </Link>
+        ))}
       </div>
 
       {/* Scrollable Filters Section */}
@@ -93,7 +157,11 @@ export function EventsSidebar({
           <div className="relative">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder={variant === "events" ? "Search events..." : "Search by event or ID..."}
+              placeholder={
+                variant === "events"
+                  ? "Search events..."
+                  : "Search by event or ID..."
+              }
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               className="pl-9"
@@ -113,8 +181,9 @@ export function EventsSidebar({
                   onClick={() => onStatusChange(status)}
                   className="w-full justify-start"
                 >
-                  {status === "all" ? "All Bookings" : 
-                   status.charAt(0).toUpperCase() + status.slice(1)}
+                  {status === "all"
+                    ? "All Bookings"
+                    : status.charAt(0).toUpperCase() + status.slice(1)}
                 </Button>
               ))}
             </div>
@@ -148,7 +217,11 @@ export function EventsSidebar({
 
         {/* Clear Filters */}
         {hasActiveFilters && (
-          <Button variant="secondary" onClick={onClearFilters} className="w-full">
+          <Button
+            variant="secondary"
+            onClick={onClearFilters}
+            className="w-full"
+          >
             Clear Filters
           </Button>
         )}
@@ -196,7 +269,10 @@ export function EventsSidebar({
             Settings
           </Button>
         </Link>
-        <Button variant="ghost" className="w-full justify-start text-red-600 hover:text-red-700">
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-red-600 hover:text-red-700"
+        >
           <LogOut className="mr-2 h-4 w-4" />
           Logout
         </Button>

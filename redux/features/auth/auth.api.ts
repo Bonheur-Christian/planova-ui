@@ -52,14 +52,6 @@ export const authApi = baseApi.injectEndpoints({
       }),
       providesTags: ["Auth"],
     }),
-
-    logoutUser: builder.mutation<void, void>({
-      queryFn: async () => {
-        logout();
-        return { data: undefined };
-      },
-      invalidatesTags: ["Auth"],
-    }),
   }),
 });
 
@@ -67,5 +59,4 @@ export const {
   useLoginMutation,
   useRegisterMutation,
   useGetMeQuery,
-  useLogoutUserMutation,
 } = authApi;
