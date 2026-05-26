@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Users, Clock } from "lucide-react";
-import Image from "next/image";
+import Link from "next/link";
 
 export interface Event {
   id: string;
@@ -139,9 +139,14 @@ export function EventCard({
           {isFull ? "Fully Booked" : actionLabel}
         </Button>
 
-        <Button className=" cursor-pointer hover:scale-103 duration-300 border border-primary w-1/2" variant="outline">
-          View Event Details
-        </Button>
+        <Link href={`/events/${event.id}`} className="w-1/2">
+          <Button
+            className="cursor-pointer hover:scale-103 duration-300 border border-primary w-full"
+            variant="outline"
+          >
+            View Event Details
+          </Button>
+        </Link>
       </CardFooter>
     </Card>
   );

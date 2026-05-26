@@ -4,7 +4,8 @@ import type {
   FetchArgs,
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query";
-import { getAccessToken, logout } from "../../utils/authUtil";
+import { getAccessToken } from "../../utils/authUtil";
+import { logout } from "../features/auth/authSlice";
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
@@ -31,11 +32,7 @@ export const baseQueryWithReauth: BaseQueryFn<
 
   // If unauthorized → logout (no refresh token exists in your system)
   if (result.error?.status === 401) {
-    logout();
-
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("auth:logout"));
-    }
+    api.dispatch(logout());
   }
 
   return result;

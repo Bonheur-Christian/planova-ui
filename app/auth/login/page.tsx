@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
+import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,8 +21,12 @@ import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { useLoginMutation } from "@/redux/features/auth/auth.api";
 import { useRouter } from "next13-progressbar";
+import { useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { Loader2, Eye, EyeOff } from "lucide-react";
+import { useSelector } from "react-redux";
+import { selectIsAuthenticated, selectUser } from "@/services/auth/authSelector";
+import { isOrganizerRole } from "@/utils/roleUtil";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Valid email is required"),
@@ -33,8 +38,22 @@ type LoginValues = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const [login, { isLoading }] = useLoginMutation();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const user = useSelector(selectUser);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
 
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      return;
+    }
+
+    const nextPath = searchParams.get("next");
+    const fallback = isOrganizerRole(user?.role) ? "/staff/organiser" : "/events";
+
+    router.push(nextPath || fallback);
+  }, [isAuthenticated, router, searchParams, user?.role]);
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -48,7 +67,6 @@ export default function LoginPage() {
     try {
       await login(values).unwrap();
       toast.success("Login successful", { duration: 3000 });
-      router.push("/events");
     } catch (err: any) {
       toast.error("Login failed");
     }

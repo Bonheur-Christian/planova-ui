@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import Providers from "@/components/custom/LoaderProvider";
 import StoreProvider from "@/redux/StoreProvider";
 import { Toaster } from "react-hot-toast";
+import AuthProvider from "@/services/auth/providers";
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -33,7 +34,7 @@ export default function RootLayout({
         <StoreProvider>
           <Providers>
             <Toaster position="top-right" />
-            {children}
+            <AuthProvider>{children}</AuthProvider>
           </Providers>
         </StoreProvider>
       </body>

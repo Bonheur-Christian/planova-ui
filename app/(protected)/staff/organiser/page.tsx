@@ -140,7 +140,7 @@ export default function OrganiserDashboard() {
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <p className="text-muted-foreground">
-            Welcome back! Here's what's happening with your events.
+            Welcome back! Here&apos;s what&apos;s happening with your events.
           </p>
         </div>
         <div className="flex gap-3">

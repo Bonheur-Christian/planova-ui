@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { toast, Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Controller } from "react-hook-form";
 import { Calendar } from "@/components/ui/calendar";
@@ -16,6 +16,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
+import { useCreateEventMutation } from "@/redux/features/events/events.api";
 
 // Simplified schema matching your Event model
 const formSchema = z.object({
@@ -31,14 +32,12 @@ type FormValues = z.infer<typeof formSchema>;
 
 export default function CreateEventPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const [createEvent, { isLoading }] = useCreateEventMutation();
 
   const {
     register,
     handleSubmit,
-    setValue,
     control,
-    watch,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -54,30 +53,22 @@ export default function CreateEventPage() {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      setIsLoading(true);
-
-      console.log(values);
-
-      // Example API call
-      // await fetch("/api/events", {
-      //   method: "POST",
-      //   body: JSON.stringify(values),
-      // });
+      await createEvent({
+        title: values.title,
+        description: values.description,
+        date: values.date.toISOString(),
+        totalSeats: values.totalSeats,
+      }).unwrap();
 
       toast.success("Event created successfully");
-
       router.push("/staff/organiser/events");
-    } catch (err) {
-      toast.error("Failed to create event");
-    } finally {
-      setIsLoading(false);
+    } catch (err: any) {
+      toast.error(err?.data?.message ?? "Failed to create event");
     }
   };
 
   return (
     <>
-      <Toaster position="top-right" />
-
       <div className="max-w-2xl mx-auto p-6 space-y-6 border border-gray-300 flex-1 mt-20 rounded-lg">
         <h1 className="text-2xl font-bold">Create Event</h1>
 

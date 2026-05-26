@@ -49,13 +49,13 @@ export default function RegisterPage() {
 
   const onSubmit = async (values: RegisterValues) => {
     try {
-      const response = await register(values).unwrap();
+      await register(values).unwrap();
       toast.success("Account created successfully ", {
         duration: 3000,
       });
       router.push("/auth/login");
     } catch (err: any) {
-      toast.error("Registration failed:", err);
+      toast.error(err?.data?.message ?? "Registration failed");
     }
   };
 

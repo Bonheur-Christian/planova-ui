@@ -16,7 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next13-progressbar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -27,6 +27,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { logout } from "@/redux/features/auth/authSlice";
+import { AppDispatch } from "@/redux/store";
+import { selectUser } from "@/services/auth/authSelector";
+import { useLogoutMutation } from "@/redux/features/auth/auth.api";
 
 interface AppSidebarProps {
   // For events page
@@ -53,14 +57,17 @@ export function EventsSidebar({
   onLocationChange = () => {},
   locations = [],
   onClearFilters = () => {},
-  statusFilter = "all",
+  statusFilter = "ALL",
   onStatusChange = () => {},
 }: AppSidebarProps) {
-  const dispatch = useDispatch();
+  const user = useSelector(selectUser);
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
   const pathname = usePathname();
+  const [logoutRequest] = useLogoutMutation();
+
   const hasActiveFilters =
-    searchQuery || selectedLocation || statusFilter !== "all";
+    searchQuery || selectedLocation || statusFilter !== "ALL";
 
   const isActive = (path: string) => pathname === path;
 
@@ -70,7 +77,15 @@ export function EventsSidebar({
   ];
 
   //Logout logic
-  const handleLogout = () => {};
+  const handleLogout = async () => {
+    try {
+      await logoutRequest().unwrap();
+    } catch {
+      // Continue with local logout even if server request fails.
+    }
+    dispatch(logout());
+    router.push("/auth/login");
+  };
 
   return (
     <aside className="w-full md:w-80 border-r bg-card flex flex-col h-screen sticky top-0">
@@ -89,9 +104,9 @@ export function EventsSidebar({
           <DropdownMenuTrigger asChild>
             <button className="outline-none cursor-pointer">
               <Avatar className="h-10 w-10">
-                <AvatarImage src="#" />
-
-                <AvatarFallback>U </AvatarFallback>
+                <AvatarFallback>
+                  {user?.name ? user.name.charAt(0).toUpperCase() : "?"}
+                </AvatarFallback>
               </Avatar>
             </button>
           </DropdownMenuTrigger>
@@ -99,9 +114,13 @@ export function EventsSidebar({
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col">
-                <span className="font-medium">user name</span>
+                <span className="font-medium">
+                  {user?.name ? user.name : "User"}
+                </span>
 
-                <span className="text-xs text-muted-foreground">Email</span>
+                <span className="text-xs text-muted-foreground">
+                  {user?.email ? user.email : "Email"}
+                </span>
               </div>
             </DropdownMenuLabel>
 
@@ -174,16 +193,16 @@ export function EventsSidebar({
           <div className="space-y-2">
             <label className="text-sm font-semibold">Booking Status</label>
             <div className="space-y-2">
-              {["all", "confirmed", "pending", "cancelled"].map((status) => (
+              {["ALL", "BOOKED", "CANCELLED"].map((status) => (
                 <Button
                   key={status}
                   variant={statusFilter === status ? "default" : "outline"}
                   onClick={() => onStatusChange(status)}
                   className="w-full justify-start"
                 >
-                  {status === "all"
+                  {status === "ALL"
                     ? "All Bookings"
-                    : status.charAt(0).toUpperCase() + status.slice(1)}
+                    : status.charAt(0) + status.slice(1).toLowerCase()}
                 </Button>
               ))}
             </div>
@@ -244,10 +263,10 @@ export function EventsSidebar({
               </button>
             </Badge>
           )}
-          {variant === "bookings" && statusFilter !== "all" && (
+          {variant === "bookings" && statusFilter !== "ALL" && (
             <Badge variant="secondary">
               {statusFilter}
-              <button onClick={() => onStatusChange("all")} className="ml-2">
+              <button onClick={() => onStatusChange("ALL")} className="ml-2">
                 <X className="h-3 w-3" />
               </button>
             </Badge>
@@ -272,6 +291,7 @@ export function EventsSidebar({
         <Button
           variant="ghost"
           className="w-full justify-start text-red-600 hover:text-red-700"
+          onClick={handleLogout}
         >
           <LogOut className="mr-2 h-4 w-4" />
           Logout
