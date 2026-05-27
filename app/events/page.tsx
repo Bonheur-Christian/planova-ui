@@ -22,9 +22,10 @@ export default function EventsPage() {
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [createBooking, { isLoading: isBooking }] = useCreateBookingMutation();
 
-  const { data, isLoading, isFetching, isError } = useGetEventsQuery(
+  const { data, isLoading, isFetching, isError , error} = useGetEventsQuery(
     searchQuery ? { search: searchQuery, limit: 50 } : { limit: 50 },
   );
+
 
   const events = useMemo<Event[]>(() => {
     return (data?.data ?? []).map((event) => {
