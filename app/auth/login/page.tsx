@@ -25,8 +25,11 @@ import { useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 import { useSelector } from "react-redux";
-import { selectIsAuthenticated, selectUser } from "@/services/auth/authSelector";
-import { isOrganizerRole } from "@/utils/roleUtil";
+import {
+  selectIsAuthenticated,
+  selectUser,
+} from "@/services/auth/authSelector";
+import { resolvePostLoginPath } from "@/utils/roleUtil";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Valid email is required"),
@@ -45,14 +48,16 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !user?.role) {
       return;
     }
 
-    const nextPath = searchParams.get("next");
-    const fallback = isOrganizerRole(user?.role) ? "/staff/organiser" : "/events";
+    const destination = resolvePostLoginPath(
+      user.role,
+      searchParams.get("next"),
+    );
 
-    router.push(nextPath || fallback);
+    router.push(destination);
   }, [isAuthenticated, router, searchParams, user?.role]);
 
   const form = useForm<LoginValues>({
@@ -65,7 +70,12 @@ export default function LoginPage() {
 
   const onSubmit = async (values: LoginValues) => {
     try {
-      await login(values).unwrap();
+      const res = await login(values).unwrap();
+      const role = res.data.user.role;
+
+      router.push(
+        resolvePostLoginPath(role, searchParams.get("next")),
+      );
       toast.success("Login successful", { duration: 3000 });
     } catch (err: any) {
       toast.error("Login failed");

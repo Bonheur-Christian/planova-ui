@@ -31,7 +31,7 @@ export const baseQueryWithReauth: BaseQueryFn<
   const result = await rawBaseQuery(args, api, extraOptions);
 
   // If unauthorized → logout (no refresh token exists in your system)
-  if (result.error?.status === 401) {
+  if (result.error?.status === 401 && getAccessToken()) {
     api.dispatch(logout());
   }
 
